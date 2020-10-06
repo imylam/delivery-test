@@ -37,5 +37,5 @@ $ go test ./...
 ### Brief Explaination
 
 #### Code Architecture
-The project tries to follow clean architecture design pattern (https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). Although it may seems a little bit over-engineered for this small project, I found it makes writing unit tests very easy.
+The project tries to follow clean architecture design pattern (https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). I found it makes writing unit tests very easy.
 
