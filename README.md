@@ -1,7 +1,7 @@
 # Delivery Test
 
 ### Prerequisite
-The project requires Docker. Make sure you have docker and docker-compose installed.
+The project requires Docker. Make sure you have Docker and Docker-compose installed.
 
 ### Run The Project
 
@@ -10,7 +10,7 @@ The project requires Docker. Make sure you have docker and docker-compose instal
 $ cp .env-example .env
 ```
 
-Input your Google Maps API key in the field GOOGLE_MAP_API_KEY in the `.env` file.
+Input your Google Maps API key in the `GOOGLE_MAP_API_KEY` field in `.env` file.
 
 
 ##### Start the server:
@@ -18,8 +18,8 @@ Input your Google Maps API key in the field GOOGLE_MAP_API_KEY in the `.env` fil
 $ ./start.sh
 ```
 
-The command should take around 45s to set-up. The server will be listening to PORT 8080 by default.
-You may change the port by changing the APP_PORT field in `.env` file.
+The command should take around 45s to set up. The server will be listening to PORT 8080 by default.
+You may change the port by changing the `APP_PORT` field in `.env` file.
 
 
 ### Stop The Project
