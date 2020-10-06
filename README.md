@@ -18,7 +18,7 @@ Input your Google Maps API key in the `GOOGLE_MAP_API_KEY` field in `.env` file.
 $ ./start.sh
 ```
 
-The command should take around 45s to set up. The server will be listening to PORT 8080 by default.
+The command should take around 1-2 minute to set up. The server will be listening to PORT 8080 by default.
 You may change the port by changing the `APP_PORT` field in `.env` file.
 
 

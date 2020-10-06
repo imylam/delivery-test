@@ -1,8 +1,0 @@
-{
-  "APP_PORT":"8080",
-  "MYSQL_HOST": "netdelivery",
-  "MYSQL_DBNAME": "delivery",
-  "MYSQL_USER": "delivery",
-  "MYSQL_PASSWORD": "password",
-  "GOOGLE_MAP_API_KEY": "AIzaSyCD6ep91-JHBEmYNXqFSVafNSUp-9HSdCo"
-}
