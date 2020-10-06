@@ -1,0 +1,28 @@
+version: "3"
+services:
+  app:
+    image: app-image
+    container_name: app-container
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    networks:
+      - netdelivery
+
+  mariadb:
+    container_name: app-mariadb-container
+    image: mariadb/server:10.4
+    environment:
+      - 'MYSQL_ROOT_HOST=${MYSQL_ROOT}'
+      - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}'
+      - 'TZ=${APP_TIMEZONE}'
+    restart: 'always'
+    ports:
+      - "3306:3306"
+    networks:
+      - netdelivery
+
+networks:
+  netdelivery:
+    driver: "bridge"
