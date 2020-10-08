@@ -2,6 +2,7 @@ package googlemap
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/imylam/delivery-test/configs"
@@ -38,6 +39,13 @@ func (mc *mapClient) GetDistance(origin string, destination string) (distance in
 
 	resp, err := mc.client.DistanceMatrix(context.Background(), r)
 	if err != nil {
+		return
+	}
+
+	respStatus := resp.Rows[0].Elements[0].Status
+
+	if respStatus != "OK" {
+		err = errors.New("Google Map API error: cannot get distance from coordinates")
 		return
 	}
 

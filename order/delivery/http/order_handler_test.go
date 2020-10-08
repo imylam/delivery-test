@@ -61,7 +61,7 @@ func TestPlaceOrder(t *testing.T) {
 		mockOrderUC.AssertExpectations(t)
 	})
 
-	t.Run("invalid-coordinate", func(t *testing.T) {
+	t.Run("invalid-coordinate-missing-longitude", func(t *testing.T) {
 		tempMockRequest := mockRequest
 		tempMockRequest.Origin = []string{"22.300789"}
 		jsonBytes, _ := json.Marshal(tempMockRequest)
@@ -85,9 +85,57 @@ func TestPlaceOrder(t *testing.T) {
 		}
 	})
 
-	t.Run("invalid-coordinate-2", func(t *testing.T) {
+	t.Run("invalid-coordinate-not-number", func(t *testing.T) {
 		tempMockRequest := mockRequest
 		tempMockRequest.Origin = []string{"22.300789", "abc"}
+		jsonBytes, _ := json.Marshal(tempMockRequest)
+
+		mockOrderUC := new(mocks.OrderUsecase)
+
+		gin.SetMode(gin.TestMode)
+		router := gin.Default()
+
+		NewOrderHandler(router, mockOrderUC)
+
+		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
+		}
+		if w.Header().Get("HTTP") != "400" {
+			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
+		}
+	})
+
+	t.Run("invalid-latitude", func(t *testing.T) {
+		tempMockRequest := mockRequest
+		tempMockRequest.Origin = []string{"92.300789", "-114.167815"}
+		jsonBytes, _ := json.Marshal(tempMockRequest)
+
+		mockOrderUC := new(mocks.OrderUsecase)
+
+		gin.SetMode(gin.TestMode)
+		router := gin.Default()
+
+		NewOrderHandler(router, mockOrderUC)
+
+		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
+		w := httptest.NewRecorder()
+		router.ServeHTTP(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
+		}
+		if w.Header().Get("HTTP") != "400" {
+			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
+		}
+	})
+
+	t.Run("invalid-longitude", func(t *testing.T) {
+		tempMockRequest := mockRequest
+		tempMockRequest.Origin = []string{"22.300789", "-214.167815"}
 		jsonBytes, _ := json.Marshal(tempMockRequest)
 
 		mockOrderUC := new(mocks.OrderUsecase)
@@ -420,6 +468,38 @@ func TestValidatePlaceOrder(t *testing.T) {
 		mockRequest := PlaceOrderRequest{
 			Origin:      []string{"22.300789", "114.167815"},
 			Destination: []string{"22.33540", "aaa"},
+		}
+
+		isValid, s := validatePlaceOrder(mockRequest)
+
+		if isValid {
+			t.Errorf("TestValidatePlaceOrder(() fails, expected imvalid, but got valid")
+		}
+		if s != errInvalidCoordinates {
+			t.Errorf("TestValidatePlaceOrder(() fails, expected %s, but got %s", errInvalidCoordinates, s)
+		}
+	})
+
+	t.Run("invalid-latitude", func(t *testing.T) {
+		mockRequest := PlaceOrderRequest{
+			Origin:      []string{"122.300789", "114.167815"},
+			Destination: []string{"22.33540", "114.176155"},
+		}
+
+		isValid, s := validatePlaceOrder(mockRequest)
+
+		if isValid {
+			t.Errorf("TestValidatePlaceOrder(() fails, expected imvalid, but got valid")
+		}
+		if s != errInvalidCoordinates {
+			t.Errorf("TestValidatePlaceOrder(() fails, expected %s, but got %s", errInvalidCoordinates, s)
+		}
+	})
+
+	t.Run("invalid-longtitude", func(t *testing.T) {
+		mockRequest := PlaceOrderRequest{
+			Origin:      []string{"22.300789", "114.167815"},
+			Destination: []string{"22.33540", "-214.176155"},
 		}
 
 		isValid, s := validatePlaceOrder(mockRequest)

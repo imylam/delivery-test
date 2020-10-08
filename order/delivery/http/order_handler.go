@@ -3,7 +3,6 @@ package http
 import (
 	"log"
 	"net/http"
-	"strconv"
 
 	"github.com/imylam/delivery-test/domain"
 	"github.com/imylam/delivery-test/order/usecase"
@@ -160,11 +159,12 @@ func validatePlaceOrder(req PlaceOrderRequest) (bool, string) {
 			return false
 		}
 
-		if _, err := strconv.ParseFloat(s, 64); err != nil {
-			return false
+		// first number of coordinate is latitude
+		if index == 0 {
+			return govalidator.IsLatitude(s)
 		}
 
-		return true
+		return govalidator.IsLongitude(s)
 	}
 
 	if govalidator.Count(originInterface, fn) != 2 {
