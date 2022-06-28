@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-playground/assert/v2"
 	"github.com/go-sql-driver/mysql"
 	"github.com/imylam/delivery-test/order"
 
@@ -60,12 +61,8 @@ func TestCreate(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		err = repo.Create(&tempOrder)
 
-		if err != nil {
-			t.Errorf("TestCreate() fails: Expected no error, but got error: %s", err.Error())
-		}
-		if tempOrder.ID != mockOrderID {
-			t.Errorf("TestCreate() fails: Expected order.ID to be %d , got %d", mockOrderID, tempOrder.ID)
-		}
+		assert.Equal(t, true, err == nil)
+		assert.Equal(t, mockOrderID, tempOrder.ID)
 	})
 
 	t.Run("insert-error", func(t *testing.T) {
@@ -78,13 +75,10 @@ func TestCreate(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		err = repo.Create(&tempOrder)
 
-		if err == nil {
-			t.Errorf("TestCreate() fails: Expected an error, but got none.")
-			return
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestCreateSqlErrors() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
+
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 	})
 
 	t.Run("select-error", func(t *testing.T) {
@@ -100,13 +94,10 @@ func TestCreate(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		err = repo.Create(&tempOrder)
 
-		if err == nil {
-			t.Errorf("TestCreate() fails: Expected an error, but got none.")
-			return
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestCreate() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
+
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 	})
 }
 
@@ -130,9 +121,7 @@ func TestUpdateStatusByID(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		err = repo.UpdateStatusByID(mockOrderID)
 
-		if err != nil {
-			t.Errorf("TestUpdateStatusByID() fails: Expected no error, but got error: %s", err.Error())
-		}
+		assert.Equal(t, true, err == nil)
 	})
 
 	t.Run("no-update", func(t *testing.T) {
@@ -145,13 +134,8 @@ func TestUpdateStatusByID(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		err = repo.UpdateStatusByID(mockOrderID)
 
-		if err == nil {
-			t.Errorf("TestUpdateStatusByID() fails: Expected an error, but got none.")
-			return
-		}
-		if err != sql.ErrNoRows {
-			t.Errorf("TestUpdateStatusByID() fails: Expected sql.ErrNoRows, got: %s.", err.Error())
-		}
+		assert.Equal(t, false, err == nil)
+		assert.Equal(t, sql.ErrNoRows, err)
 	})
 
 	t.Run("update-error", func(t *testing.T) {
@@ -164,13 +148,10 @@ func TestUpdateStatusByID(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		err = repo.UpdateStatusByID(mockOrderID)
 
-		if err == nil {
-			t.Errorf("TestUpdateStatusByID() fails: Expected an error, but got none.")
-			return
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestUpdateStatusByID() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
+
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 	})
 }
 
@@ -196,12 +177,8 @@ func TestFindByID(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		order, err := repo.FindByID(mockOrderID)
 
-		if err != nil {
-			t.Errorf("TestFindByID() fails: Expected no error, but got error: %s", err.Error())
-		}
-		if order.ID != mockOrderID {
-			t.Errorf("TestFindByID() fails: Expected order.ID to be %d , got %d", mockOrderID, order.ID)
-		}
+		assert.Equal(t, true, err == nil)
+		assert.Equal(t, mockOrderID, order.ID)
 	})
 
 	t.Run("select-error", func(t *testing.T) {
@@ -212,13 +189,10 @@ func TestFindByID(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		_, err := repo.FindByID(mockOrderID)
 
-		if err == nil {
-			t.Errorf("TestFindByID() fails: Expected an error, but got none.")
-			return
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestFindByID() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
+
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 	})
 }
 
@@ -245,12 +219,8 @@ func TestFindRange(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		orders, err := repo.FindRange(mockLimit, mockPage)
 
-		if err != nil {
-			t.Errorf("TestFindRange() fails: Expected no error, but got error: %s", err.Error())
-		}
-		if len(*orders) != 3 {
-			t.Errorf("TestFindRange() fails: Expected order.ID to be %d , got %d", 3, len(*orders))
-		}
+		assert.Equal(t, true, err == nil)
+		assert.Equal(t, 3, len(*orders))
 	})
 
 	t.Run("select-error", func(t *testing.T) {
@@ -262,12 +232,9 @@ func TestFindRange(t *testing.T) {
 		repo := NewOrderRepositoryMysql(sqlxDB)
 		_, err := repo.FindRange(mockLimit, mockPage)
 
-		if err == nil {
-			t.Errorf("TestFindRange() fails: Expected an error, but got none.")
-			return
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestFindRange() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
+
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 	})
 }

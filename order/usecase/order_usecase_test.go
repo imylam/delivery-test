@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-playground/assert/v2"
 	"github.com/go-sql-driver/mysql"
 	"github.com/imylam/delivery-test/order"
 	"github.com/imylam/delivery-test/order/infrastructure/googlemap"
@@ -37,12 +38,8 @@ func TestPlaceOrder(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		order, err := uc.PlaceOrder([]string{"22.300789", "114.167815"}, []string{"22.33540", "114.176155"})
 
-		if err != nil {
-			t.Errorf("TestPlaceOrder() fails, expect no error, got: %s", err.Error())
-		}
-		if order.Distance != distance {
-			t.Errorf("TestPlaceOrder() fails, expect order.Distance: %d, got: %d", order.Distance, distance)
-		}
+		assert.Equal(t, true, err == nil)
+		assert.Equal(t, distance, order.Distance)
 		mockMapClient.AssertExpectations(t)
 		mockOrderRepo.AssertExpectations(t)
 	})
@@ -76,13 +73,10 @@ func TestPlaceOrder(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		_, err := uc.PlaceOrder([]string{"22.300789", "114.167815"}, []string{"22.33540", "114.176155"})
 
-		if err == nil {
-			t.Errorf("TestPlaceOrder() fails, expect no error, got: %s", err.Error())
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestPlaceOrder() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
 
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 		mockMapClient.AssertExpectations(t)
 		mockOrderRepo.AssertExpectations(t)
 	})
@@ -104,13 +98,8 @@ func TestTakeOrder(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		status, err := uc.TakeOrder(mockOrderID)
 
-		if err != nil {
-			t.Errorf("TestTakeOrder() fails, expect no error, got: %s", err.Error())
-		}
-		if status != statusUpdateOrderStatusSuccess {
-			t.Errorf("TestTakeOrder() fails, expect status: %s, got: %s", statusUpdateOrderStatusSuccess, status)
-		}
-
+		assert.Equal(t, true, err == nil)
+		assert.Equal(t, statusUpdateOrderStatusSuccess, status)
 		mockOrderRepo.AssertExpectations(t)
 	})
 
@@ -124,14 +113,8 @@ func TestTakeOrder(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		_, err := uc.TakeOrder(mockOrderID)
 
-		if err == nil {
-			t.Errorf("TestTakeOrder() fails, expect an error, got none")
-			return
-		}
-		if err.Error() != ErrorOrderTaken {
-			t.Errorf("TestTakeOrder() fails, expect error msg: %s, got:%s", ErrorOrderTaken, err.Error())
-		}
-
+		assert.Equal(t, false, err == nil)
+		assert.Equal(t, ErrorOrderTaken, err.Error())
 		mockOrderRepo.AssertExpectations(t)
 	})
 
@@ -145,14 +128,8 @@ func TestTakeOrder(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		_, err := uc.TakeOrder(mockOrderID)
 
-		if err == nil {
-			t.Errorf("TestTakeOrder() fails, expect an error, got none")
-			return
-		}
-		if err.Error() != ErrorOrderTaken {
-			t.Errorf("TestTakeOrder() fails, expect error msg: %s, got:%s", ErrorOrderTaken, err.Error())
-		}
-
+		assert.Equal(t, false, err == nil)
+		assert.Equal(t, ErrorOrderTaken, err.Error())
 		mockOrderRepo.AssertExpectations(t)
 	})
 
@@ -160,19 +137,12 @@ func TestTakeOrder(t *testing.T) {
 		mockOrderID := int64(1)
 
 		mockOrderRepo.On("FindByID", mock.AnythingOfType("int64")).Return(nil, sql.ErrNoRows).Once()
-		// mockOrderRepo.On("UpdateStatusByID", mock.AnythingOfType("int64")).Return(nil).Once()
 
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		_, err := uc.TakeOrder(mockOrderID)
 
-		if err == nil {
-			t.Errorf("TestTakeOrder() fails, expect an error, got none")
-			return
-		}
-		if err != sql.ErrNoRows {
-			t.Errorf("TestTakeOrder() fails, expect sql.ErrNoRows, got:%s", err.Error())
-		}
-
+		assert.Equal(t, false, err == nil)
+		assert.Equal(t, sql.ErrNoRows, err)
 		mockOrderRepo.AssertExpectations(t)
 	})
 
@@ -186,14 +156,10 @@ func TestTakeOrder(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		_, err := uc.TakeOrder(mockOrderID)
 
-		if err == nil {
-			t.Errorf("TestTakeOrder() fails, expect an error, got none")
-			return
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestTakeOrder() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
 
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 		mockOrderRepo.AssertExpectations(t)
 	})
 }
@@ -205,10 +171,10 @@ func TestListOrders(t *testing.T) {
 	mockPage := 1
 	mockLimit := 4
 	mockOrders := []order.Order{
-		order.Order{ID: 1, Distance: 100, Status: order.StatusTaken},
-		order.Order{ID: 2, Distance: 200, Status: order.StatusUnassigned},
-		order.Order{ID: 3, Distance: 300, Status: order.StatusUnassigned},
-		order.Order{ID: 4, Distance: 400, Status: order.StatusTaken},
+		{ID: 1, Distance: 100, Status: order.StatusTaken},
+		{ID: 2, Distance: 200, Status: order.StatusUnassigned},
+		{ID: 3, Distance: 300, Status: order.StatusUnassigned},
+		{ID: 4, Distance: 400, Status: order.StatusTaken},
 	}
 
 	t.Run("success", func(t *testing.T) {
@@ -220,14 +186,8 @@ func TestListOrders(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		orders, err := uc.ListOrders(mockPage, mockLimit)
 
-		if err != nil {
-			t.Errorf("TestListOrders() fails, expect no error, got: %s", err.Error())
-		}
-		if len(*orders) != len(tempOrders) {
-			t.Errorf("TestListOrders() fails, expect number of orders: %d, got: %d",
-				len(tempOrders), len(*orders))
-		}
-
+		assert.Equal(t, true, err == nil)
+		assert.Equal(t, len(tempOrders), len(*orders))
 		mockOrderRepo.AssertExpectations(t)
 	})
 
@@ -238,14 +198,10 @@ func TestListOrders(t *testing.T) {
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		_, err := uc.ListOrders(mockPage, mockLimit)
 
-		if err == nil {
-			t.Errorf("TestListOrders() fails, expect an error, got none")
-			return
-		}
-		if _, ok := err.(*mysql.MySQLError); !ok {
-			t.Errorf("TestListOrders() fails: Expected mysql error")
-		}
+		assert.Equal(t, false, err == nil)
 
+		_, isMysqlError := err.(*mysql.MySQLError)
+		assert.Equal(t, true, isMysqlError)
 		mockOrderRepo.AssertExpectations(t)
 	})
 }
