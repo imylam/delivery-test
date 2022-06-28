@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/assert/v2"
 	"github.com/go-sql-driver/mysql"
 	"github.com/imylam/delivery-test/common/middleware"
 	"github.com/imylam/delivery-test/order"
@@ -34,12 +35,8 @@ func TestPlaceOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
-		}
-		if w.Header().Get("HTTP") != "400" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
-		}
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
 	t.Run("invalid-coordinate-not-number", func(t *testing.T) {
@@ -56,12 +53,8 @@ func TestPlaceOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
-		}
-		if w.Header().Get("HTTP") != "400" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
-		}
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
 	t.Run("invalid-latitude", func(t *testing.T) {
@@ -79,12 +72,8 @@ func TestPlaceOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
-		}
-		if w.Header().Get("HTTP") != "400" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
-		}
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
 	t.Run("invalid-longitude", func(t *testing.T) {
@@ -102,12 +91,8 @@ func TestPlaceOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
-		}
-		if w.Header().Get("HTTP") != "400" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
-		}
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
 	t.Run("db-error", func(t *testing.T) {
@@ -126,13 +111,8 @@ func TestPlaceOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusInternalServerError {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusInternalServerError, w.Code)
-		}
-		if w.Header().Get("HTTP") != "500" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "500", w.Header().Get("HTTP"))
-		}
-
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, "500", w.Header().Get("HTTP"))
 		mockOrderUC.AssertExpectations(t)
 	})
 }
@@ -156,12 +136,8 @@ func TestTakeOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
-		}
-		if w.Header().Get("HTTP") != "400" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
-		}
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
 	t.Run("invalid-request-body", func(t *testing.T) {
@@ -170,7 +146,6 @@ func TestTakeOrder(t *testing.T) {
 		jsonBytes, _ := json.Marshal(mockRequest)
 
 		mockOrderUC := new(mocks.OrderUsecase)
-		// mockOrderUC.On("TakeOrder", mock.AnythingOfType("int64")).Return("SUCCESS", nil)
 		router := createGinRouter()
 
 		NewOrderHandler(router, mockOrderUC)
@@ -179,12 +154,8 @@ func TestTakeOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
-		}
-		if w.Header().Get("HTTP") != "400" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
-		}
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
 	t.Run("db-error", func(t *testing.T) {
@@ -201,13 +172,8 @@ func TestTakeOrder(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusInternalServerError {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusInternalServerError, w.Code)
-		}
-		if w.Header().Get("HTTP") != "500" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "500", w.Header().Get("HTTP"))
-		}
-
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, "500", w.Header().Get("HTTP"))
 		mockOrderUC.AssertExpectations(t)
 	})
 }
@@ -234,17 +200,9 @@ func TestListOrders(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusOK {
-			t.Errorf("TestListOrders() fails, expect response code %d, got: %d", http.StatusOK, w.Code)
-		}
-		if w.Header().Get("HTTP") != "200" {
-			t.Errorf("TestListOrders() fails, expect header HTTP: %s, got: %s", "200", w.Header().Get("HTTP"))
-		}
-		if w.Body.String() != string(expJSONRespBytes) {
-			t.Errorf("TestListOrders() fails, expect response: %s, got: %s",
-				string(expJSONRespBytes), w.Body.String())
-		}
-
+		assert.Equal(t, http.StatusOK, w.Code)
+		assert.Equal(t, "200", w.Header().Get("HTTP"))
+		assert.Equal(t, string(expJSONRespBytes), w.Body.String())
 		mockOrderUC.AssertExpectations(t)
 	})
 
@@ -262,12 +220,8 @@ func TestListOrders(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusBadRequest {
-			t.Errorf("TestListOrders() fails, expect response code %d, got: %d", http.StatusBadRequest, w.Code)
-		}
-		if w.Header().Get("HTTP") != "400" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "400", w.Header().Get("HTTP"))
-		}
+		assert.Equal(t, http.StatusBadRequest, w.Code)
+		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
 	t.Run("invalid-qparams", func(t *testing.T) {
@@ -286,13 +240,8 @@ func TestListOrders(t *testing.T) {
 		w := httptest.NewRecorder()
 		router.ServeHTTP(w, req)
 
-		if w.Code != http.StatusInternalServerError {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusInternalServerError, w.Code)
-		}
-		if w.Header().Get("HTTP") != "500" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "500", w.Header().Get("HTTP"))
-		}
-
+		assert.Equal(t, http.StatusInternalServerError, w.Code)
+		assert.Equal(t, "500", w.Header().Get("HTTP"))
 		mockOrderUC.AssertExpectations(t)
 	})
 }
@@ -306,9 +255,7 @@ func TestValidatePlaceOrder(t *testing.T) {
 
 		isValid, _ := validatePlaceOrder(mockRequest)
 
-		if !isValid {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected valid, but got invalid")
-		}
+		assert.Equal(t, true, isValid)
 	})
 
 	t.Run("coordinate-not-two", func(t *testing.T) {
@@ -319,12 +266,8 @@ func TestValidatePlaceOrder(t *testing.T) {
 
 		isValid, s := validatePlaceOrder(mockRequest)
 
-		if isValid {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected imvalid, but got valid")
-		}
-		if s != errInvalidCoordinates {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected %s, but got %s", errInvalidCoordinates, s)
-		}
+		assert.Equal(t, false, isValid)
+		assert.Equal(t, errInvalidCoordinates, s)
 	})
 
 	t.Run("coordinate-not-digit", func(t *testing.T) {
@@ -335,12 +278,8 @@ func TestValidatePlaceOrder(t *testing.T) {
 
 		isValid, s := validatePlaceOrder(mockRequest)
 
-		if isValid {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected imvalid, but got valid")
-		}
-		if s != errInvalidCoordinates {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected %s, but got %s", errInvalidCoordinates, s)
-		}
+		assert.Equal(t, false, isValid)
+		assert.Equal(t, errInvalidCoordinates, s)
 	})
 
 	t.Run("invalid-latitude", func(t *testing.T) {
@@ -351,12 +290,8 @@ func TestValidatePlaceOrder(t *testing.T) {
 
 		isValid, s := validatePlaceOrder(mockRequest)
 
-		if isValid {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected imvalid, but got valid")
-		}
-		if s != errInvalidCoordinates {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected %s, but got %s", errInvalidCoordinates, s)
-		}
+		assert.Equal(t, false, isValid)
+		assert.Equal(t, errInvalidCoordinates, s)
 	})
 
 	t.Run("invalid-longtitude", func(t *testing.T) {
@@ -367,12 +302,8 @@ func TestValidatePlaceOrder(t *testing.T) {
 
 		isValid, s := validatePlaceOrder(mockRequest)
 
-		if isValid {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected imvalid, but got valid")
-		}
-		if s != errInvalidCoordinates {
-			t.Errorf("TestValidatePlaceOrder(() fails, expected %s, but got %s", errInvalidCoordinates, s)
-		}
+		assert.Equal(t, false, isValid)
+		assert.Equal(t, errInvalidCoordinates, s)
 	})
 }
 
