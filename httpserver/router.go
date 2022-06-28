@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"github.com/imylam/delivery-test/common/middleware"
 	"github.com/imylam/delivery-test/db"
 	_orderHandler "github.com/imylam/delivery-test/order/api/rest"
 	"github.com/imylam/delivery-test/order/infrastructure/googlemap"
@@ -20,6 +21,7 @@ func InitRoutes() *gin.Engine {
 
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
+	router.Use(middleware.HandleRestError)
 
 	_orderHandler.NewOrderHandler(router, orderUC)
 
