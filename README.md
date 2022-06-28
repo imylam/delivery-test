@@ -1,41 +1,59 @@
 # Delivery Test
 
-### Prerequisite
+## Prerequisite
 The project requires Docker. Make sure you have Docker and Docker-compose installed.
 
-### Run The Project
+## Run The Project
 
-##### Configs:
-```sh
-$ cp .env-example .env
+#### Configs:
+Input your Google Maps API key for the field `GOOGLE_MAP_API_KEY` in `docker-compose.yml`:
+
+```
+docker-compose.yml
+
+services:
+  app:
+    ...
+    environment:
+      ...
+      - GOOGLE_MAP_API_KEY=<YOUR GOOLGE MAP API KEY HERE>
 ```
 
-Input your Google Maps API key in the `GOOGLE_MAP_API_KEY` field in `.env` file.
-
-
-##### Start the server:
+#### Start the server:
 ```sh
 $ ./start.sh
 ```
 
-The command should take around 1-2 minute to set up. The server will be listening to PORT 8080 by default.
-You may change the port by changing the `APP_PORT` field in `.env` file.
+The command should take around 30 seconds to set up. The server will be listening to PORT 8080 by default.
+You may change the port by changing the `APP_PORT` field in `docker-compose.yml` file.
 
 
-### Stop The Project
+## Stop The Project
 
 ```sh
-$ docker-compose down
+$ docker-compose down -v
 ```
 
 
-### Run Unit Tests
+## Run Unit Tests
 ```sh
 $ go test ./...
 ```
 
-### Brief Explaination
+## Run Integration Tests
 
-#### Code Architecture
-The project tries to follow clean architecture design pattern (https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html). I found it makes writing unit tests very easy.
+#### Run Integration Tests locally
+```sh
+$ ./start.sh
+cd ../integration_tests
+go test ./... -tags=integration
+```
+
+#### Run Integration Tests in docker
+```sh
+$ ./run-integration-test.sh
+```
+
+### Brief Explaination
+The project tries to follow clean architecture design pattern (https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html).
 
