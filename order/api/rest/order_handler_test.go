@@ -20,44 +20,6 @@ func TestPlaceOrder(t *testing.T) {
 	httpMethod := "POST"
 	httpPath := "/orders"
 
-	mockOrder := order.Order{
-		ID:       1,
-		Distance: 888,
-		Status:   order.StatusUnassigned,
-	}
-
-	t.Run("success", func(t *testing.T) {
-		tempMockOrder := mockOrder
-		expJSONRespBytes, _ := json.Marshal(tempMockOrder)
-
-		tempMockRequest := createMockPlaceOrderRequest()
-		jsonBytes, _ := json.Marshal(tempMockRequest)
-
-		mockOrderUC := new(mocks.OrderUsecase)
-		mockOrderUC.On("PlaceOrder", mock.AnythingOfType("[]string"),
-			mock.AnythingOfType("[]string")).Return(&tempMockOrder, nil)
-
-		router := createGinRouter()
-
-		NewOrderHandler(router, mockOrderUC)
-
-		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		if w.Code != http.StatusOK {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusOK, w.Code)
-		}
-		if w.Header().Get("HTTP") != "200" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "200", w.Header().Get("HTTP"))
-		}
-		if w.Body.String() != string(expJSONRespBytes) {
-			t.Errorf("TestRegister() fails, expect response: %s, got: %s", string(expJSONRespBytes), w.Body.String())
-		}
-
-		mockOrderUC.AssertExpectations(t)
-	})
-
 	t.Run("invalid-coordinate-missing-longitude", func(t *testing.T) {
 		tempMockRequest := createMockPlaceOrderRequest()
 		tempMockRequest.Origin = []string{"22.300789"}
@@ -179,39 +141,6 @@ func TestTakeOrder(t *testing.T) {
 	httpMethod := "PATCH"
 	httpPath := "/orders/1"
 
-	t.Run("success", func(t *testing.T) {
-		resp := make(map[string]interface{}, 1)
-		resp["status"] = "SUCCESS"
-		expJSONRespBytes, _ := json.Marshal(resp)
-
-		mockRequest := createMockTakeOrderRequest()
-		jsonBytes, _ := json.Marshal(mockRequest)
-
-		mockOrderUC := new(mocks.OrderUsecase)
-		mockOrderUC.On("TakeOrder", mock.AnythingOfType("int64")).Return("SUCCESS", nil)
-
-		gin.SetMode(gin.TestMode)
-		router := gin.Default()
-
-		NewOrderHandler(router, mockOrderUC)
-
-		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		if w.Code != http.StatusOK {
-			t.Errorf("TestPlaceOrder() fails, expect response code %d, got: %d", http.StatusOK, w.Code)
-		}
-		if w.Header().Get("HTTP") != "200" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "200", w.Header().Get("HTTP"))
-		}
-		if w.Body.String() != string(expJSONRespBytes) {
-			t.Errorf("TestRegister() fails, expect response: %s, got: %s", string(expJSONRespBytes), w.Body.String())
-		}
-
-		mockOrderUC.AssertExpectations(t)
-	})
-
 	t.Run("uri-param-not-digit", func(t *testing.T) {
 		tempHTTPPath := "/orders/aa"
 
@@ -286,45 +215,6 @@ func TestTakeOrder(t *testing.T) {
 func TestListOrders(t *testing.T) {
 	httpMethod := "GET"
 	httpPath := "/orders"
-	mockOrders := []order.Order{
-		{ID: 1, Distance: 100, Status: order.StatusTaken},
-		{ID: 2, Distance: 200, Status: order.StatusUnassigned},
-		{ID: 3, Distance: 300, Status: order.StatusUnassigned},
-		{ID: 4, Distance: 400, Status: order.StatusTaken},
-	}
-
-	t.Run("success", func(t *testing.T) {
-		mockPage := 1
-		mockLimit := 4
-		qParams := fmt.Sprintf("?page=%d&limit=%d", mockPage, mockLimit)
-
-		tempMockOrders := mockOrders
-		expJSONRespBytes, _ := json.Marshal(tempMockOrders)
-
-		mockOrderUC := new(mocks.OrderUsecase)
-		mockOrderUC.On("ListOrders", mock.AnythingOfType("int"),
-			mock.AnythingOfType("int")).Return(&mockOrders, nil)
-		router := createGinRouter()
-
-		NewOrderHandler(router, mockOrderUC)
-
-		req, _ := http.NewRequest(httpMethod, httpPath+qParams, nil)
-		w := httptest.NewRecorder()
-		router.ServeHTTP(w, req)
-
-		if w.Code != http.StatusOK {
-			t.Errorf("TestListOrders() fails, expect response code %d, got: %d", http.StatusOK, w.Code)
-		}
-		if w.Header().Get("HTTP") != "200" {
-			t.Errorf("TestPlaceOrder() fails, expect header HTTP: %s, got: %s", "200", w.Header().Get("HTTP"))
-		}
-		if w.Body.String() != string(expJSONRespBytes) {
-			t.Errorf("TestListOrders() fails, expect response: %s, got: %s",
-				string(expJSONRespBytes), w.Body.String())
-		}
-
-		mockOrderUC.AssertExpectations(t)
-	})
 
 	t.Run("empty-result", func(t *testing.T) {
 		mockPage := 100
