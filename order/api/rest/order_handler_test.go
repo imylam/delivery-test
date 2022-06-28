@@ -12,12 +12,15 @@ import (
 	"github.com/go-playground/assert/v2"
 	"github.com/go-sql-driver/mysql"
 	"github.com/imylam/delivery-test/common/middleware"
+	"github.com/imylam/delivery-test/logger"
 	"github.com/imylam/delivery-test/order"
 	"github.com/imylam/delivery-test/order/mocks"
 	"github.com/stretchr/testify/mock"
 )
 
 func TestPlaceOrder(t *testing.T) {
+	logger.Init()
+
 	httpMethod := "POST"
 	httpPath := "/orders"
 
@@ -289,7 +292,7 @@ func TestValidatePlaceOrder(t *testing.T) {
 func createGinRouter() *gin.Engine {
 	gin.SetMode(gin.TestMode)
 
-	router := gin.Default()
+	router := gin.New()
 	router.Use(middleware.HandleRestError)
 
 	return router

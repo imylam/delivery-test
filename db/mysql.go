@@ -2,9 +2,10 @@ package db
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/imylam/delivery-test/configs"
+	"github.com/imylam/delivery-test/logger"
+	"go.uber.org/zap"
 
 	"github.com/jmoiron/sqlx"
 
@@ -22,10 +23,10 @@ func InitDBConn() {
 
 	err := mysqlConn.Ping()
 	if err != nil {
-		log.Fatal("Error on connection to database:", err)
+		logger.Logger.Fatal("Error on connecting to database", zap.String("error", err.Error()))
 	}
 
-	log.Print("Success in connecting to database")
+	logger.Logger.Info("Success in connecting to database")
 }
 
 // GetDBConnection get database connection object
@@ -41,7 +42,7 @@ func connectMysql() *sqlx.DB {
 
 	mysqlCon, err := sqlx.Open("mysql", connectionStr)
 	if err != nil {
-		log.Fatal(err)
+		logger.Logger.Fatal("Error opening DB connection", zap.String("error", err.Error()))
 	}
 
 	return mysqlCon

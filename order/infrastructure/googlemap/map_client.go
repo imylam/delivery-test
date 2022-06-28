@@ -3,9 +3,10 @@ package googlemap
 import (
 	"context"
 	"errors"
-	"log"
 
 	"github.com/imylam/delivery-test/configs"
+	"github.com/imylam/delivery-test/logger"
+	"go.uber.org/zap"
 
 	"googlemaps.github.io/maps"
 )
@@ -23,7 +24,7 @@ type mapClient struct {
 func NewMapClient() MapClient {
 	c, err := maps.NewClient(maps.WithAPIKey(configs.Get(configs.KeyGoogleMapAPIKey)))
 	if err != nil {
-		log.Fatalf("fatal error: %s", err)
+		logger.Logger.Error("fail to get distance from google map", zap.String("error", err.Error()))
 	}
 
 	return &mapClient{client: c}

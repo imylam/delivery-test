@@ -1,12 +1,13 @@
 package rest
 
 import (
-	"log"
 	"net/http"
 
 	resterrors "github.com/imylam/delivery-test/common/rest_errors"
+	"github.com/imylam/delivery-test/logger"
 	"github.com/imylam/delivery-test/order"
 	"github.com/imylam/delivery-test/order/usecase"
+	"go.uber.org/zap"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/gin-gonic/gin"
@@ -49,7 +50,7 @@ func (h *orderHandler) placeOrder(c *gin.Context) {
 
 	order, err := h.orderUC.PlaceOrder(req.Origin, req.Destination)
 	if err != nil {
-		log.Print(err.Error())
+		logger.Logger.Error("fail to place order", zap.String("error", err.Error()))
 
 		c.Error(resterrors.NewInternalServerError(errInternalServer))
 		return
@@ -84,7 +85,7 @@ func (h *orderHandler) takeOrder(c *gin.Context) {
 	status, err := h.orderUC.TakeOrder(req.ID)
 	if err != nil {
 		if err.Error() != usecase.ErrorOrderTaken {
-			log.Print(err.Error())
+			logger.Logger.Error("fail to take order", zap.String("error", err.Error()))
 
 			c.Error(resterrors.NewInternalServerError(errInternalServer))
 			return
@@ -92,7 +93,6 @@ func (h *orderHandler) takeOrder(c *gin.Context) {
 
 		c.Header("HTTP", "409")
 		c.JSON(http.StatusConflict, gin.H{"error": usecase.ErrorOrderTaken})
-		log.Print(err.Error() == usecase.ErrorOrderTaken)
 		return
 	}
 
@@ -115,7 +115,7 @@ func (h *orderHandler) listOrder(c *gin.Context) {
 
 	orders, err := h.orderUC.ListOrders(req.Page, req.Limit)
 	if err != nil {
-		log.Print(err.Error())
+		logger.Logger.Error("fail to list orders", zap.String("error", err.Error()))
 		c.Error(resterrors.NewInternalServerError(errInternalServer))
 		return
 	}

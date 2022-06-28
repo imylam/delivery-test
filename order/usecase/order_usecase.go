@@ -30,9 +30,7 @@ func NewOrderUsecase(userRepo order.OrderRepository,
 	}
 }
 
-func (uc *orderUsecase) PlaceOrder(origins,
-	destinations []string) (newOrder *order.Order, err error) {
-
+func (uc *orderUsecase) PlaceOrder(origins, destinations []string) (newOrder *order.Order, err error) {
 	origin := strings.Join(origins, ",")
 	dest := strings.Join(destinations, ",")
 
@@ -69,12 +67,11 @@ func (uc *orderUsecase) TakeOrder(id int64) (status string, err error) {
 		return
 	}
 
-	status = "SUCCESS"
+	status = statusUpdateOrderStatusSuccess
 	return
 }
 
 func (uc *orderUsecase) ListOrders(page, limit int) (orders *[]order.Order, err error) {
-
 	offset := (page - 1) * limit
 	orders, err = uc.orderRepo.FindRange(limit, offset)
 
