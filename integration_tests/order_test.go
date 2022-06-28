@@ -12,7 +12,7 @@ import (
 	"github.com/go-playground/assert/v2"
 	"github.com/go-resty/resty/v2"
 
-	"github.com/imylam/delivery-test/domain"
+	"github.com/imylam/delivery-test/order"
 	"github.com/imylam/delivery-test/order/api/rest"
 )
 
@@ -37,7 +37,7 @@ func Test_ListOrders(t *testing.T) {
 
 		// Test limit
 		resp := listOrders(1, 5, client)
-		var orders []domain.Order
+		var orders []order.Order
 		_ = json.Unmarshal(resp.Body(), &orders)
 
 		assert.Equal(t, len(orders), 5)
@@ -45,7 +45,7 @@ func Test_ListOrders(t *testing.T) {
 		// Test page
 		firstOrderId := orders[0].ID
 		resp2 := listOrders(2, 5, client)
-		var orders2 []domain.Order
+		var orders2 []order.Order
 		_ = json.Unmarshal(resp2.Body(), &orders2)
 
 		assert.Equal(t, len(orders2), 5)
