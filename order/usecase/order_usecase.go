@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/imylam/delivery-test/configs"
 	"github.com/imylam/delivery-test/domain"
 	"github.com/imylam/delivery-test/googlemap"
 )
@@ -34,7 +35,8 @@ func (uc *orderUsecase) PlaceOrder(origins,
 
 	origin := strings.Join(origins, ",")
 	dest := strings.Join(destinations, ",")
-	dist, err := uc.mapClient.GetDistance(origin, dest)
+
+	dist, err := getDistance(origin, dest, uc.mapClient)
 	if err != nil {
 		return
 	}
@@ -77,4 +79,18 @@ func (uc *orderUsecase) ListOrders(page, limit int) (orders *[]domain.Order, err
 	orders, err = uc.orderRepo.FindRange(limit, offset)
 
 	return
+}
+
+func getDistance(origin, dest string, mapClient googlemap.MapClient) (int, error) {
+
+	if configs.Get(configs.KeyAppEnv) == "integration-test" {
+		return 10, nil
+	} else {
+		dist, err := mapClient.GetDistance(origin, dest)
+		if err != nil {
+			return 0, err
+		}
+
+		return dist, nil
+	}
 }
