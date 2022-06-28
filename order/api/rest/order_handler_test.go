@@ -11,8 +11,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-sql-driver/mysql"
 	"github.com/imylam/delivery-test/common/middleware"
-	"github.com/imylam/delivery-test/domain"
-	"github.com/imylam/delivery-test/domain/mocks"
+	"github.com/imylam/delivery-test/order"
+	"github.com/imylam/delivery-test/order/mocks"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -20,10 +20,10 @@ func TestPlaceOrder(t *testing.T) {
 	httpMethod := "POST"
 	httpPath := "/orders"
 
-	mockOrder := domain.Order{
+	mockOrder := order.Order{
 		ID:       1,
 		Distance: 888,
-		Status:   domain.StatusUnassigned,
+		Status:   order.StatusUnassigned,
 	}
 
 	t.Run("success", func(t *testing.T) {
@@ -286,11 +286,11 @@ func TestTakeOrder(t *testing.T) {
 func TestListOrders(t *testing.T) {
 	httpMethod := "GET"
 	httpPath := "/orders"
-	mockOrders := []domain.Order{
-		{ID: 1, Distance: 100, Status: domain.StatusTaken},
-		{ID: 2, Distance: 200, Status: domain.StatusUnassigned},
-		{ID: 3, Distance: 300, Status: domain.StatusUnassigned},
-		{ID: 4, Distance: 400, Status: domain.StatusTaken},
+	mockOrders := []order.Order{
+		{ID: 1, Distance: 100, Status: order.StatusTaken},
+		{ID: 2, Distance: 200, Status: order.StatusUnassigned},
+		{ID: 3, Distance: 300, Status: order.StatusUnassigned},
+		{ID: 4, Distance: 400, Status: order.StatusTaken},
 	}
 
 	t.Run("success", func(t *testing.T) {
@@ -335,7 +335,7 @@ func TestListOrders(t *testing.T) {
 
 		mockOrderUC := new(mocks.OrderUsecase)
 		mockOrderUC.On("ListOrders", mock.AnythingOfType("int"),
-			mock.AnythingOfType("int")).Return(&[]domain.Order{}, nil)
+			mock.AnythingOfType("int")).Return(&[]order.Order{}, nil)
 		router := createGinRouter()
 
 		NewOrderHandler(router, mockOrderUC)

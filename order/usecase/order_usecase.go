@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/imylam/delivery-test/configs"
-	"github.com/imylam/delivery-test/domain"
+	"github.com/imylam/delivery-test/order"
 	"github.com/imylam/delivery-test/order/infrastructure/googlemap"
 )
 
@@ -16,13 +16,13 @@ const (
 )
 
 type orderUsecase struct {
-	orderRepo domain.OrderRepository
+	orderRepo order.OrderRepository
 	mapClient googlemap.MapClient
 }
 
-// NewOrderUsecase will create new a orderUsecase object representation of domain.OrderUsecase interface
-func NewOrderUsecase(userRepo domain.OrderRepository,
-	mapClient googlemap.MapClient) domain.OrderUsecase {
+// NewOrderUsecase will create new a orderUsecase object representation of order.OrderUsecase interface
+func NewOrderUsecase(userRepo order.OrderRepository,
+	mapClient googlemap.MapClient) order.OrderUsecase {
 
 	return &orderUsecase{
 		orderRepo: userRepo,
@@ -31,7 +31,7 @@ func NewOrderUsecase(userRepo domain.OrderRepository,
 }
 
 func (uc *orderUsecase) PlaceOrder(origins,
-	destinations []string) (order *domain.Order, err error) {
+	destinations []string) (newOrder *order.Order, err error) {
 
 	origin := strings.Join(origins, ",")
 	dest := strings.Join(destinations, ",")
@@ -41,8 +41,8 @@ func (uc *orderUsecase) PlaceOrder(origins,
 		return
 	}
 
-	order = &domain.Order{Distance: dist, Status: domain.StatusUnassigned}
-	err = uc.orderRepo.Create(order)
+	newOrder = &order.Order{Distance: dist, Status: order.StatusUnassigned}
+	err = uc.orderRepo.Create(newOrder)
 	if err != nil {
 		return
 	}
@@ -51,11 +51,11 @@ func (uc *orderUsecase) PlaceOrder(origins,
 }
 
 func (uc *orderUsecase) TakeOrder(id int64) (status string, err error) {
-	order, err := uc.orderRepo.FindByID(id)
+	orderFound, err := uc.orderRepo.FindByID(id)
 	if err != nil {
 		return
 	}
-	if order.Status == domain.StatusTaken {
+	if orderFound.Status == order.StatusTaken {
 		err = errors.New(ErrorOrderTaken)
 		return
 	}
@@ -73,7 +73,7 @@ func (uc *orderUsecase) TakeOrder(id int64) (status string, err error) {
 	return
 }
 
-func (uc *orderUsecase) ListOrders(page, limit int) (orders *[]domain.Order, err error) {
+func (uc *orderUsecase) ListOrders(page, limit int) (orders *[]order.Order, err error) {
 
 	offset := (page - 1) * limit
 	orders, err = uc.orderRepo.FindRange(limit, offset)

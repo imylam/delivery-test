@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	resterrors "github.com/imylam/delivery-test/common/rest_errors"
-	"github.com/imylam/delivery-test/domain"
+	"github.com/imylam/delivery-test/order"
 	"github.com/imylam/delivery-test/order/usecase"
 
 	"github.com/asaskevich/govalidator"
@@ -20,11 +20,11 @@ const (
 
 // orderHandler represents the httphandler for handling requests relating to Orders
 type orderHandler struct {
-	orderUC domain.OrderUsecase
+	orderUC order.OrderUsecase
 }
 
 // NewOrderHandler will initialize the Order endpoints
-func NewOrderHandler(g *gin.Engine, orderUC domain.OrderUsecase) {
+func NewOrderHandler(g *gin.Engine, orderUC order.OrderUsecase) {
 	handler := &orderHandler{
 		orderUC: orderUC,
 	}
