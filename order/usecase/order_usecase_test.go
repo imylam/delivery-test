@@ -9,7 +9,7 @@ import (
 
 	"github.com/go-sql-driver/mysql"
 	"github.com/imylam/delivery-test/domain"
-	"github.com/imylam/delivery-test/googlemap"
+	"github.com/imylam/delivery-test/order/infrastructure/googlemap"
 
 	"github.com/imylam/delivery-test/domain/mocks"
 	"github.com/stretchr/testify/mock"

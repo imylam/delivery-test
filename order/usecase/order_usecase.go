@@ -7,7 +7,7 @@ import (
 
 	"github.com/imylam/delivery-test/configs"
 	"github.com/imylam/delivery-test/domain"
-	"github.com/imylam/delivery-test/googlemap"
+	"github.com/imylam/delivery-test/order/infrastructure/googlemap"
 )
 
 const (
