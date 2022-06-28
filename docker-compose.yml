@@ -1,25 +1,44 @@
 version: "3"
 services:
   app:
-    image: app-image
-    container_name: app-container
+    image: imylam/delivery-test
+    container_name: delivery-test
     build:
+      dockerfile: ./Dockerfile
       context: .
+    environment:
+      - APP_ENV=integration-test
+      - APP_PORT=8080
+      - MYSQL_DBNAME=delivery
+      - MYSQL_HOST=mariadb
+      - MYSQL_USER=delivery
+      - MYSQL_PASSWORD=password
+      - GOOGLE_MAP_API_KEY=key
     ports:
       - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
     networks:
       - netdelivery
 
   mariadb:
-    container_name: app-mariadb-container
+    container_name: mariadb
     image: mariadb/server:10.4
     environment:
-      - 'MYSQL_ROOT_HOST=${MYSQL_ROOT}'
-      - 'MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}'
-      - 'TZ=${APP_TIMEZONE}'
+      - MYSQL_HOST=mariadb
+      - MYSQL_ROOT_HOST=root
+      - MYSQL_ROOT_PASSWORD=local_dev
+      - TZ=+00:00
     restart: 'always'
+    volumes: 
+      - ./init-sql:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 20
     networks:
       - netdelivery
 

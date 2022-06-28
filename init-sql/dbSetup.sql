@@ -1,3 +1,6 @@
+-- create user
+CREATE USER IF NOT EXISTS 'delivery'@'%' IDENTIFIED BY 'password';
+
 -- create databases
 CREATE DATABASE IF NOT EXISTS `delivery` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
