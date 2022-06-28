@@ -22,12 +22,10 @@ func TestPlaceOrder(t *testing.T) {
 	httpPath := "/orders"
 
 	t.Run("invalid-coordinate-missing-longitude", func(t *testing.T) {
-		tempMockRequest := createMockPlaceOrderRequest()
-		tempMockRequest.Origin = []string{"22.300789"}
-		jsonBytes, _ := json.Marshal(tempMockRequest)
+		placeOrderReq := createMockPlaceOrderRequest([]string{"22.300789"}, createValidDestination())
+		jsonBytes, _ := json.Marshal(placeOrderReq)
 
 		mockOrderUC := new(mocks.OrderUsecase)
-
 		router := createGinRouter()
 		NewOrderHandler(router, mockOrderUC)
 
@@ -40,12 +38,10 @@ func TestPlaceOrder(t *testing.T) {
 	})
 
 	t.Run("invalid-coordinate-not-number", func(t *testing.T) {
-		tempMockRequest := createMockPlaceOrderRequest()
-		tempMockRequest.Origin = []string{"22.300789", "abc"}
-		jsonBytes, _ := json.Marshal(tempMockRequest)
+		placeOrderReq := createMockPlaceOrderRequest([]string{"22.300789", "abc"}, createValidDestination())
+		jsonBytes, _ := json.Marshal(placeOrderReq)
 
 		mockOrderUC := new(mocks.OrderUsecase)
-
 		router := createGinRouter()
 		NewOrderHandler(router, mockOrderUC)
 
@@ -58,14 +54,12 @@ func TestPlaceOrder(t *testing.T) {
 	})
 
 	t.Run("invalid-latitude", func(t *testing.T) {
-		tempMockRequest := createMockPlaceOrderRequest()
-		tempMockRequest.Origin = []string{"92.300789", "-114.167815"}
-		jsonBytes, _ := json.Marshal(tempMockRequest)
+		placeOrderReq := createMockPlaceOrderRequest([]string{"92.300789", "-114.167815"}, createValidDestination())
+		placeOrderReq.Origin = []string{"92.300789", "-114.167815"}
+		jsonBytes, _ := json.Marshal(placeOrderReq)
 
 		mockOrderUC := new(mocks.OrderUsecase)
-
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
@@ -77,14 +71,11 @@ func TestPlaceOrder(t *testing.T) {
 	})
 
 	t.Run("invalid-longitude", func(t *testing.T) {
-		tempMockRequest := createMockPlaceOrderRequest()
-		tempMockRequest.Origin = []string{"22.300789", "-214.167815"}
-		jsonBytes, _ := json.Marshal(tempMockRequest)
+		placeOrderReq := createMockPlaceOrderRequest([]string{"22.300789", "-214.167815"}, createValidDestination())
+		jsonBytes, _ := json.Marshal(placeOrderReq)
 
 		mockOrderUC := new(mocks.OrderUsecase)
-
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
@@ -96,15 +87,13 @@ func TestPlaceOrder(t *testing.T) {
 	})
 
 	t.Run("db-error", func(t *testing.T) {
-		tempMockRequest := createMockPlaceOrderRequest()
+		tempMockRequest := createValidPlaceOrderRequest()
 		jsonBytes, _ := json.Marshal(tempMockRequest)
 
 		mockOrderUC := new(mocks.OrderUsecase)
 		mockOrderUC.On("PlaceOrder", mock.AnythingOfType("[]string"),
 			mock.AnythingOfType("[]string")).Return(nil, &mysql.MySQLError{})
-
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
@@ -129,7 +118,6 @@ func TestTakeOrder(t *testing.T) {
 
 		mockOrderUC := new(mocks.OrderUsecase)
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, tempHTTPPath, bytes.NewReader(jsonBytes))
@@ -147,7 +135,6 @@ func TestTakeOrder(t *testing.T) {
 
 		mockOrderUC := new(mocks.OrderUsecase)
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
@@ -165,7 +152,6 @@ func TestTakeOrder(t *testing.T) {
 		mockOrderUC := new(mocks.OrderUsecase)
 		mockOrderUC.On("TakeOrder", mock.AnythingOfType("int64")).Return("", &mysql.MySQLError{})
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath, bytes.NewReader(jsonBytes))
@@ -183,9 +169,7 @@ func TestListOrders(t *testing.T) {
 	httpPath := "/orders"
 
 	t.Run("empty-result", func(t *testing.T) {
-		mockPage := 100
-		mockLimit := 100
-		qParams := fmt.Sprintf("?page=%d&limit=%d", mockPage, mockLimit)
+		qParams := buildListOrderQueryParams(100, 100)
 
 		expJSONRespBytes, _ := json.Marshal([]string{})
 
@@ -193,7 +177,6 @@ func TestListOrders(t *testing.T) {
 		mockOrderUC.On("ListOrders", mock.AnythingOfType("int"),
 			mock.AnythingOfType("int")).Return(&[]order.Order{}, nil)
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath+qParams, nil)
@@ -213,7 +196,6 @@ func TestListOrders(t *testing.T) {
 
 		mockOrderUC := new(mocks.OrderUsecase)
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath+qParams, nil)
@@ -224,16 +206,13 @@ func TestListOrders(t *testing.T) {
 		assert.Equal(t, "400", w.Header().Get("HTTP"))
 	})
 
-	t.Run("invalid-qparams", func(t *testing.T) {
-		mockPage := 1
-		mockLimit := 4
-		qParams := fmt.Sprintf("?page=%d&limit=%d", mockPage, mockLimit)
+	t.Run("db-error", func(t *testing.T) {
+		qParams := buildListOrderQueryParams(1, 4)
 
 		mockOrderUC := new(mocks.OrderUsecase)
 		mockOrderUC.On("ListOrders", mock.AnythingOfType("int"),
 			mock.AnythingOfType("int")).Return(nil, &mysql.MySQLError{})
 		router := createGinRouter()
-
 		NewOrderHandler(router, mockOrderUC)
 
 		req, _ := http.NewRequest(httpMethod, httpPath+qParams, nil)
@@ -316,13 +295,32 @@ func createGinRouter() *gin.Engine {
 	return router
 }
 
-func createMockPlaceOrderRequest() PlaceOrderRequest {
+func createValidPlaceOrderRequest() PlaceOrderRequest {
+	return createMockPlaceOrderRequest(
+		[]string{"22.300789", "114.167815"},
+		[]string{"22.33540", "114.176155"},
+	)
+}
+
+func createMockPlaceOrderRequest(ori []string, dest []string) PlaceOrderRequest {
 	return PlaceOrderRequest{
-		Origin:      []string{"22.300789", "114.167815"},
-		Destination: []string{"22.33540", "114.176155"},
+		Origin:      ori,
+		Destination: dest,
 	}
+}
+
+func createValidOrigin() []string {
+	return []string{"22.300789", "114.167815"}
+}
+
+func createValidDestination() []string {
+	return []string{"22.33540", "114.176155"}
 }
 
 func createMockTakeOrderRequest() TakeOrderRequest {
 	return TakeOrderRequest{Status: "TAKEN"}
+}
+
+func buildListOrderQueryParams(page int, limit int) string {
+	return fmt.Sprintf("?page=%d&limit=%d", page, limit)
 }
