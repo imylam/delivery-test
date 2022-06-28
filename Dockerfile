@@ -19,8 +19,6 @@ COPY --from=builder /go/bin/app /go/bin/app
 
 WORKDIR /go/bin/
 
-COPY .env .env
-
 EXPOSE 8080
 
 ENTRYPOINT ["/go/bin/app"]

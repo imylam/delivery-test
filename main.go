@@ -11,7 +11,6 @@ import (
 )
 
 func main() {
-	configs.Init()
 	db.InitDBConn()
 	govalidator.SetFieldsRequiredByDefault(true)
 
