@@ -1,4 +1,4 @@
-package http
+package rest
 
 // PlaceOrderReponse represents the place order reponse body
 type PlaceOrderReponse struct {

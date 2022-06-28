@@ -8,10 +8,10 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/imylam/delivery-test/domain"
-	"github.com/imylam/delivery-test/googlemap"
+	"github.com/imylam/delivery-test/order"
+	"github.com/imylam/delivery-test/order/infrastructure/googlemap"
 
-	"github.com/imylam/delivery-test/domain/mocks"
+	"github.com/imylam/delivery-test/order/mocks"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -32,7 +32,7 @@ func TestPlaceOrder(t *testing.T) {
 
 		mockMapClient.On("GetDistance", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
 			Return(distance, nil).Once()
-		mockOrderRepo.On("Create", mock.AnythingOfType("*domain.Order")).Return(nil).Once()
+		mockOrderRepo.On("Create", mock.AnythingOfType("*order.Order")).Return(nil).Once()
 
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		order, err := uc.PlaceOrder([]string{"22.300789", "114.167815"}, []string{"22.33540", "114.176155"})
@@ -71,7 +71,7 @@ func TestPlaceOrder(t *testing.T) {
 
 		mockMapClient.On("GetDistance", mock.AnythingOfType("string"), mock.AnythingOfType("string")).
 			Return(distance, nil).Once()
-		mockOrderRepo.On("Create", mock.AnythingOfType("*domain.Order")).Return(&mysql.MySQLError{}).Once()
+		mockOrderRepo.On("Create", mock.AnythingOfType("*order.Order")).Return(&mysql.MySQLError{}).Once()
 
 		uc := NewOrderUsecase(mockOrderRepo, mockMapClient)
 		_, err := uc.PlaceOrder([]string{"22.300789", "114.167815"}, []string{"22.33540", "114.176155"})
@@ -92,7 +92,7 @@ func TestTakeOrder(t *testing.T) {
 	mockOrderRepo := new(mocks.OrderRepository)
 	mockMapClient := new(googlemap.MockMapClient)
 
-	mockOrder := domain.Order{Status: domain.StatusUnassigned}
+	mockOrder := order.Order{Status: order.StatusUnassigned}
 
 	t.Run("success", func(t *testing.T) {
 		mockOrderID := int64(1)
@@ -117,7 +117,7 @@ func TestTakeOrder(t *testing.T) {
 	t.Run("order-taken", func(t *testing.T) {
 		mockOrderID := int64(1)
 		tempOrder := mockOrder
-		tempOrder.Status = domain.StatusTaken
+		tempOrder.Status = order.StatusTaken
 
 		mockOrderRepo.On("FindByID", mock.AnythingOfType("int64")).Return(&tempOrder, nil).Once()
 
@@ -204,11 +204,11 @@ func TestListOrders(t *testing.T) {
 
 	mockPage := 1
 	mockLimit := 4
-	mockOrders := []domain.Order{
-		domain.Order{ID: 1, Distance: 100, Status: domain.StatusTaken},
-		domain.Order{ID: 2, Distance: 200, Status: domain.StatusUnassigned},
-		domain.Order{ID: 3, Distance: 300, Status: domain.StatusUnassigned},
-		domain.Order{ID: 4, Distance: 400, Status: domain.StatusTaken},
+	mockOrders := []order.Order{
+		order.Order{ID: 1, Distance: 100, Status: order.StatusTaken},
+		order.Order{ID: 2, Distance: 200, Status: order.StatusUnassigned},
+		order.Order{ID: 3, Distance: 300, Status: order.StatusUnassigned},
+		order.Order{ID: 4, Distance: 400, Status: order.StatusTaken},
 	}
 
 	t.Run("success", func(t *testing.T) {

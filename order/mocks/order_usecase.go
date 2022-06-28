@@ -1,7 +1,7 @@
 package mocks
 
 import (
-	"github.com/imylam/delivery-test/domain"
+	"github.com/imylam/delivery-test/order"
 	"github.com/stretchr/testify/mock"
 )
 
@@ -11,15 +11,15 @@ type OrderUsecase struct {
 }
 
 // PlaceOrder provides a mock function with given fields: origins, destinations
-func (_m *OrderUsecase) PlaceOrder(origins, destinations []string) (*domain.Order, error) {
+func (_m *OrderUsecase) PlaceOrder(origins, destinations []string) (*order.Order, error) {
 	ret := _m.Called(origins, destinations)
 
-	var r0 *domain.Order
-	if rf, ok := ret.Get(0).(func([]string, []string) *domain.Order); ok {
+	var r0 *order.Order
+	if rf, ok := ret.Get(0).(func([]string, []string) *order.Order); ok {
 		r0 = rf(origins, destinations)
 	} else {
-		if _, ok := ret.Get(0).(*domain.Order); ok {
-			r0 = ret.Get(0).(*domain.Order)
+		if _, ok := ret.Get(0).(*order.Order); ok {
+			r0 = ret.Get(0).(*order.Order)
 		} else {
 			r0 = nil
 		}
@@ -61,15 +61,15 @@ func (_m *OrderUsecase) TakeOrder(id int64) (string, error) {
 }
 
 // ListOrders provides a mock function with given fields: page, limit
-func (_m *OrderUsecase) ListOrders(page, limit int) (*[]domain.Order, error) {
+func (_m *OrderUsecase) ListOrders(page, limit int) (*[]order.Order, error) {
 	ret := _m.Called(page, limit)
 
-	var r0 *[]domain.Order
-	if rf, ok := ret.Get(0).(func(int, int) *[]domain.Order); ok {
+	var r0 *[]order.Order
+	if rf, ok := ret.Get(0).(func(int, int) *[]order.Order); ok {
 		r0 = rf(page, limit)
 	} else {
-		if _, ok := ret.Get(0).(*[]domain.Order); ok {
-			r0 = ret.Get(0).(*[]domain.Order)
+		if _, ok := ret.Get(0).(*[]order.Order); ok {
+			r0 = ret.Get(0).(*[]order.Order)
 		} else {
 			r0 = nil
 		}

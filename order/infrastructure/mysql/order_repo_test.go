@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/go-sql-driver/mysql"
-	"github.com/imylam/delivery-test/domain"
+	"github.com/imylam/delivery-test/order"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/jmoiron/sqlx"
@@ -40,9 +40,9 @@ func TestCreate(t *testing.T) {
 	qInsert := "INSERT INTO orders"
 	qSelect := "SELECT (.+) FROM orders"
 
-	mockOrder := domain.Order{
+	mockOrder := order.Order{
 		Distance: 1000,
-		Status:   domain.StatusUnassigned,
+		Status:   order.StatusUnassigned,
 	}
 
 	t.Run("success", func(t *testing.T) {
@@ -124,7 +124,7 @@ func TestUpdateStatusByID(t *testing.T) {
 		mockOrderID := int64(8)
 
 		prepUpdate := mock.ExpectPrepare(q)
-		prepUpdate.ExpectExec().WithArgs(domain.StatusTaken, mockOrderID, domain.StatusUnassigned).
+		prepUpdate.ExpectExec().WithArgs(order.StatusTaken, mockOrderID, order.StatusUnassigned).
 			WillReturnResult(sqlmock.NewResult(mockOrderID, 1))
 
 		repo := NewOrderRepositoryMysql(sqlxDB)
@@ -139,7 +139,7 @@ func TestUpdateStatusByID(t *testing.T) {
 		mockOrderID := int64(8)
 
 		prepUpdate := mock.ExpectPrepare(q)
-		prepUpdate.ExpectExec().WithArgs(domain.StatusTaken, mockOrderID, domain.StatusUnassigned).
+		prepUpdate.ExpectExec().WithArgs(order.StatusTaken, mockOrderID, order.StatusUnassigned).
 			WillReturnResult(sqlmock.NewResult(0, 0))
 
 		repo := NewOrderRepositoryMysql(sqlxDB)
@@ -158,7 +158,7 @@ func TestUpdateStatusByID(t *testing.T) {
 		mockOrderID := int64(8)
 
 		prepUpdate := mock.ExpectPrepare(q)
-		prepUpdate.ExpectExec().WithArgs(domain.StatusTaken, mockOrderID, domain.StatusUnassigned).
+		prepUpdate.ExpectExec().WithArgs(order.StatusTaken, mockOrderID, order.StatusUnassigned).
 			WillReturnError(&mysql.MySQLError{})
 
 		repo := NewOrderRepositoryMysql(sqlxDB)
@@ -187,7 +187,7 @@ func TestFindByID(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		mockOrderID := int64(8)
 		mockDistance := 888
-		mockStatus := domain.StatusUnassigned
+		mockStatus := order.StatusUnassigned
 
 		rows := sqlmock.NewRows([]string{"id", "distance", "status", "created_at", "updated_at"}).
 			AddRow(mockOrderID, mockDistance, mockStatus, time.Now(), time.Now())
@@ -237,9 +237,9 @@ func TestFindRange(t *testing.T) {
 		mockPage := 1
 
 		rows := sqlmock.NewRows([]string{"id", "distance", "status", "created_at", "updated_at"}).
-			AddRow(1, 100, domain.StatusTaken, time.Now(), time.Now()).
-			AddRow(2, 200, domain.StatusUnassigned, time.Now(), time.Now()).
-			AddRow(3, 300, domain.StatusUnassigned, time.Now(), time.Now())
+			AddRow(1, 100, order.StatusTaken, time.Now(), time.Now()).
+			AddRow(2, 200, order.StatusUnassigned, time.Now(), time.Now()).
+			AddRow(3, 300, order.StatusUnassigned, time.Now(), time.Now())
 		mock.ExpectQuery(q).WithArgs(mockLimit, mockPage).WillReturnRows(rows)
 
 		repo := NewOrderRepositoryMysql(sqlxDB)

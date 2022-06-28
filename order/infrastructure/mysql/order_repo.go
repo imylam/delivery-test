@@ -3,7 +3,7 @@ package mysql
 import (
 	"database/sql"
 
-	"github.com/imylam/delivery-test/domain"
+	"github.com/imylam/delivery-test/order"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -12,12 +12,12 @@ type orderRepoMysql struct {
 	MysqlConn *sqlx.DB
 }
 
-// NewOrderRepositoryMysql will create an object that represent the domain.OrderRepository interface
-func NewOrderRepositoryMysql(mysqlConn *sqlx.DB) domain.OrderRepository {
+// NewOrderRepositoryMysql will create an object that represent the order.OrderRepository interface
+func NewOrderRepositoryMysql(mysqlConn *sqlx.DB) order.OrderRepository {
 	return &orderRepoMysql{mysqlConn}
 }
 
-func (repo *orderRepoMysql) Create(order *domain.Order) error {
+func (repo *orderRepoMysql) Create(order *order.Order) error {
 	q1 := "INSERT INTO orders (distance, status, created_at, updated_at) VALUES (?,?,now(),now())"
 	q2 := "SELECT * FROM orders WHERE id=?"
 
@@ -52,7 +52,7 @@ func (repo *orderRepoMysql) UpdateStatusByID(id int64) error {
 		return err
 	}
 
-	result, err := updateStmt.Exec(domain.StatusTaken, id, domain.StatusUnassigned)
+	result, err := updateStmt.Exec(order.StatusTaken, id, order.StatusUnassigned)
 	if err != nil {
 		return err
 	}
@@ -68,10 +68,10 @@ func (repo *orderRepoMysql) UpdateStatusByID(id int64) error {
 	return err
 }
 
-func (repo *orderRepoMysql) FindByID(id int64) (*domain.Order, error) {
+func (repo *orderRepoMysql) FindByID(id int64) (*order.Order, error) {
 	q := "SELECT * FROM orders WHERE id=?"
 
-	var order domain.Order
+	var order order.Order
 	err := repo.MysqlConn.QueryRowx(q, id).StructScan(&order)
 	if err != nil {
 		return nil, err
@@ -80,7 +80,7 @@ func (repo *orderRepoMysql) FindByID(id int64) (*domain.Order, error) {
 	return &order, err
 }
 
-func (repo *orderRepoMysql) FindRange(limit, offset int) (*[]domain.Order, error) {
+func (repo *orderRepoMysql) FindRange(limit, offset int) (*[]order.Order, error) {
 	q := "SELECT * FROM orders LIMIT ? OFFSET ?"
 
 	rows, err := repo.MysqlConn.Queryx(q, limit, offset)
@@ -88,9 +88,9 @@ func (repo *orderRepoMysql) FindRange(limit, offset int) (*[]domain.Order, error
 		return nil, err
 	}
 
-	var orders []domain.Order
+	var orders []order.Order
 	for rows.Next() {
-		var order domain.Order
+		var order order.Order
 		err = rows.StructScan(&order)
 		if err != nil {
 

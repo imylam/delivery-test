@@ -1,10 +1,11 @@
-package http
+package rest
 
 import (
 	"log"
 	"net/http"
 
-	"github.com/imylam/delivery-test/domain"
+	resterrors "github.com/imylam/delivery-test/common/rest_errors"
+	"github.com/imylam/delivery-test/order"
 	"github.com/imylam/delivery-test/order/usecase"
 
 	"github.com/asaskevich/govalidator"
@@ -19,11 +20,11 @@ const (
 
 // orderHandler represents the httphandler for handling requests relating to Orders
 type orderHandler struct {
-	orderUC domain.OrderUsecase
+	orderUC order.OrderUsecase
 }
 
 // NewOrderHandler will initialize the Order endpoints
-func NewOrderHandler(g *gin.Engine, orderUC domain.OrderUsecase) {
+func NewOrderHandler(g *gin.Engine, orderUC order.OrderUsecase) {
 	handler := &orderHandler{
 		orderUC: orderUC,
 	}
@@ -36,15 +37,13 @@ func NewOrderHandler(g *gin.Engine, orderUC domain.OrderUsecase) {
 func (h *orderHandler) placeOrder(c *gin.Context) {
 	var req PlaceOrderRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": errInvalidResquestParams})
+		c.Error(resterrors.NewBadRequestError(errInvalidResquestParams))
 		return
 	}
 
 	isValid, errMsg := validatePlaceOrder(req)
 	if !isValid {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": errMsg})
+		c.Error(resterrors.NewBadRequestError(errMsg))
 		return
 	}
 
@@ -52,9 +51,7 @@ func (h *orderHandler) placeOrder(c *gin.Context) {
 	if err != nil {
 		log.Print(err.Error())
 
-		c.Header("HTTP", "500")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": errInternalServer})
-
+		c.Error(resterrors.NewInternalServerError(errInternalServer))
 		return
 	}
 
@@ -65,26 +62,22 @@ func (h *orderHandler) placeOrder(c *gin.Context) {
 func (h *orderHandler) takeOrder(c *gin.Context) {
 	var req TakeOrderRequest
 	if err := c.ShouldBindUri(&req); err != nil {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": errInvalidResquestParams})
+		c.Error(resterrors.NewBadRequestError(errInvalidResquestParams))
 		return
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": errInvalidResquestParams})
+		c.Error(resterrors.NewBadRequestError(errInvalidResquestParams))
 		return
 	}
 
 	_, err := govalidator.ValidateStruct(req)
 	if err != nil {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": errInvalidResquestParams})
+		c.Error(resterrors.NewBadRequestError(errInvalidResquestParams))
 		return
 	}
 
 	if req.Status != "TAKEN" {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": errInvalidResquestParams})
+		c.Error(resterrors.NewBadRequestError(errInvalidResquestParams))
 		return
 	}
 
@@ -93,8 +86,7 @@ func (h *orderHandler) takeOrder(c *gin.Context) {
 		if err.Error() != usecase.ErrorOrderTaken {
 			log.Print(err.Error())
 
-			c.Header("HTTP", "500")
-			c.JSON(http.StatusInternalServerError, gin.H{"error": errInternalServer})
+			c.Error(resterrors.NewInternalServerError(errInternalServer))
 			return
 		}
 
@@ -111,23 +103,20 @@ func (h *orderHandler) takeOrder(c *gin.Context) {
 func (h *orderHandler) listOrder(c *gin.Context) {
 	var req ListOrderRequest
 	if err := c.ShouldBindQuery(&req); err != nil {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": errInvalidResquestParams})
+		c.Error(resterrors.NewBadRequestError(errInvalidResquestParams))
 		return
 	}
 
 	_, err := govalidator.ValidateStruct(req)
 	if err != nil {
-		c.Header("HTTP", "400")
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.Error(resterrors.NewBadRequestError(err.Error()))
 		return
 	}
 
 	orders, err := h.orderUC.ListOrders(req.Page, req.Limit)
 	if err != nil {
 		log.Print(err.Error())
-		c.Header("HTTP", "500")
-		c.JSON(http.StatusInternalServerError, gin.H{"error": errInternalServer})
+		c.Error(resterrors.NewInternalServerError(errInternalServer))
 		return
 	}
 

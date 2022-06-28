@@ -12,8 +12,8 @@ import (
 	"github.com/go-playground/assert/v2"
 	"github.com/go-resty/resty/v2"
 
-	"github.com/imylam/delivery-test/domain"
-	"github.com/imylam/delivery-test/order/delivery/http"
+	"github.com/imylam/delivery-test/order"
+	"github.com/imylam/delivery-test/order/api/rest"
 )
 
 func Test_ListOrders(t *testing.T) {
@@ -32,12 +32,12 @@ func Test_ListOrders(t *testing.T) {
 	t.Run("GIVEN__WHEN_list_order_THEN__should_be_returned", func(t *testing.T) {
 
 		for i := 0; i < 10; i++ {
-			placeOrder(&http.PlaceOrderReponse{}, client)
+			placeOrder(&rest.PlaceOrderReponse{}, client)
 		}
 
 		// Test limit
 		resp := listOrders(1, 5, client)
-		var orders []domain.Order
+		var orders []order.Order
 		_ = json.Unmarshal(resp.Body(), &orders)
 
 		assert.Equal(t, len(orders), 5)
@@ -45,7 +45,7 @@ func Test_ListOrders(t *testing.T) {
 		// Test page
 		firstOrderId := orders[0].ID
 		resp2 := listOrders(2, 5, client)
-		var orders2 []domain.Order
+		var orders2 []order.Order
 		_ = json.Unmarshal(resp2.Body(), &orders2)
 
 		assert.Equal(t, len(orders2), 5)
@@ -59,7 +59,7 @@ func Test_PlaceOrders(t *testing.T) {
 
 	t.Run("GIVEN_vaild_PlaceOrderRequest_body_WHEN_place_order_THEN_success_placeOrderResponse_should_be_returned", func(t *testing.T) {
 
-		placeOrderResponose := &http.PlaceOrderReponse{}
+		placeOrderResponose := &rest.PlaceOrderReponse{}
 
 		resp := placeOrder(placeOrderResponose, client)
 
@@ -76,11 +76,11 @@ func Test_TakeOrder(t *testing.T) {
 
 	t.Run("GIVEN_order_untaken_WHEN_take_order_THEN_success_take_order_response_should_be_returned", func(t *testing.T) {
 
-		placeOrderResponose := &http.PlaceOrderReponse{}
+		placeOrderResponose := &rest.PlaceOrderReponse{}
 		placeOrder(placeOrderResponose, client)
 
 		orderId := placeOrderResponose.ID
-		takeOrderResponse := &http.TakeOrderResponse{}
+		takeOrderResponse := &rest.TakeOrderResponse{}
 		resp := takeOrder(orderId, takeOrderResponse, client)
 
 		assert.Equal(t, 200, resp.StatusCode())
@@ -90,13 +90,13 @@ func Test_TakeOrder(t *testing.T) {
 
 	t.Run("GIVEN_order_taken_WHEN_take_order_THEN_failure_take_order_response_should_be_returned", func(t *testing.T) {
 
-		placeOrderResponose := &http.PlaceOrderReponse{}
+		placeOrderResponose := &rest.PlaceOrderReponse{}
 		placeOrder(placeOrderResponose, client)
 
 		orderId := placeOrderResponose.ID
-		takeOrder(orderId, &http.TakeOrderResponse{}, client)
+		takeOrder(orderId, &rest.TakeOrderResponse{}, client)
 
-		takeOrderResponse := &http.TakeOrderResponse{}
+		takeOrderResponse := &rest.TakeOrderResponse{}
 		resp := takeOrder(orderId, takeOrderResponse, client)
 
 		assert.Equal(t, 409, resp.StatusCode())
@@ -113,7 +113,7 @@ func listOrders(page int, limit int, client *resty.Client) (resp *resty.Response
 	return
 }
 
-func placeOrder(placeOrderResponose *http.PlaceOrderReponse, client *resty.Client) (resp *resty.Response) {
+func placeOrder(placeOrderResponose *rest.PlaceOrderReponse, client *resty.Client) (resp *resty.Response) {
 	resp, _ = client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(`{"origin": ["0.00", "0.00"], "destination": ["1.00", "0.00"]}`).
@@ -123,7 +123,7 @@ func placeOrder(placeOrderResponose *http.PlaceOrderReponse, client *resty.Clien
 	return
 }
 
-func takeOrder(orderId int, takeOrderResponse *http.TakeOrderResponse, client *resty.Client) (resp *resty.Response) {
+func takeOrder(orderId int, takeOrderResponse *rest.TakeOrderResponse, client *resty.Client) (resp *resty.Response) {
 	resp, _ = client.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(`{"status":"TAKEN"}`).

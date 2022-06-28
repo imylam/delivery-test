@@ -1,4 +1,4 @@
-FROM golang:1.15.2-alpine3.12 as builder
+FROM golang:1.18.3-alpine3.16 as builder
 
 # All these steps will be cached
 WORKDIR /app
@@ -13,7 +13,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /go/bin/app
 
 ## SECOND STEP: Build minimal image by copying the executable binary file from builder
-FROM alpine:3.12.0
+FROM alpine:3.16.0
 
 COPY --from=builder /go/bin/app /go/bin/app
 
