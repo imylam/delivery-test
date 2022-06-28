@@ -1,4 +1,4 @@
-package http
+package rest
 
 // PlaceOrderRequest represents the object of place order request params
 type PlaceOrderRequest struct {

@@ -3,7 +3,7 @@ package httpserver
 import (
 	"github.com/imylam/delivery-test/db"
 	"github.com/imylam/delivery-test/googlemap"
-	_orderHandler "github.com/imylam/delivery-test/order/delivery/http"
+	_orderHandler "github.com/imylam/delivery-test/order/api/rest"
 	_orderRepo "github.com/imylam/delivery-test/order/repository/mysql"
 	_orderUsecase "github.com/imylam/delivery-test/order/usecase"
 
