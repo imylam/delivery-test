@@ -41,6 +41,7 @@ $ go test ./...
 ```
 
 ## Run Integration Tests
+> Note: For integration tests to pass, a fresh DB is needed.
 
 #### Run Integration Tests locally
 ```sh
