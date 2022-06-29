@@ -25,11 +25,11 @@ func Test_ListOrders(t *testing.T) {
 		resp := listOrders(1, 5, client)
 
 		assert.Equal(t, 200, resp.StatusCode())
-		assert.Equal(t, resp.Header().Get("HTTP"), "200")
-		assert.Equal(t, string(resp.Body()), "[]")
+		assert.Equal(t, "200", resp.Header().Get("HTTP"))
+		assert.Equal(t, "[]", string(resp.Body()))
 	})
 
-	t.Run("GIVEN__WHEN_list_order_THEN__should_be_returned", func(t *testing.T) {
+	t.Run("GIVEN_ten_orders_WHEN_list_order_with_page_and_limit_THEN_orders_according_to_page_limit_settings_should_be_returned", func(t *testing.T) {
 
 		for i := 0; i < 10; i++ {
 			placeOrder(&rest.PlaceOrderReponse{}, client)
@@ -40,7 +40,7 @@ func Test_ListOrders(t *testing.T) {
 		var orders []order.Order
 		_ = json.Unmarshal(resp.Body(), &orders)
 
-		assert.Equal(t, len(orders), 5)
+		assert.Equal(t, 5, len(orders))
 
 		// Test page
 		firstOrderId := orders[0].ID
@@ -48,8 +48,8 @@ func Test_ListOrders(t *testing.T) {
 		var orders2 []order.Order
 		_ = json.Unmarshal(resp2.Body(), &orders2)
 
-		assert.Equal(t, len(orders2), 5)
-		assert.Equal(t, orders2[0].ID, firstOrderId+5)
+		assert.Equal(t, 5, len(orders2))
+		assert.Equal(t, firstOrderId+5, orders2[0].ID)
 	})
 }
 
@@ -64,9 +64,9 @@ func Test_PlaceOrders(t *testing.T) {
 		resp := placeOrder(placeOrderResponose, client)
 
 		assert.Equal(t, 200, resp.StatusCode())
-		assert.Equal(t, resp.Header().Get("HTTP"), "200")
-		assert.Equal(t, placeOrderResponose.ID > 0, true)
-		assert.Equal(t, "UNASSIGNED", placeOrderResponose.Status)
+		assert.Equal(t, "200", resp.Header().Get("HTTP"))
+		assert.Equal(t, true, placeOrderResponose.ID > 0)
+		assert.Equal(t, placeOrderResponose.Status, "UNASSIGNED")
 	})
 }
 
@@ -84,11 +84,11 @@ func Test_TakeOrder(t *testing.T) {
 		resp := takeOrder(orderId, takeOrderResponse, client)
 
 		assert.Equal(t, 200, resp.StatusCode())
-		assert.Equal(t, resp.Header().Get("HTTP"), "200")
-		assert.Equal(t, takeOrderResponse.Status, "SUCCESS")
+		assert.Equal(t, "200", resp.Header().Get("HTTP"))
+		assert.Equal(t, "SUCCESS", takeOrderResponse.Status)
 	})
 
-	t.Run("GIVEN_order_taken_WHEN_take_order_THEN_failure_take_order_response_should_be_returned", func(t *testing.T) {
+	t.Run("GIVEN_order_taken_WHEN_take_order_THEN_conflict_take_order_response_should_be_returned", func(t *testing.T) {
 
 		placeOrderResponose := &rest.PlaceOrderReponse{}
 		placeOrder(placeOrderResponose, client)
@@ -100,8 +100,8 @@ func Test_TakeOrder(t *testing.T) {
 		resp := takeOrder(orderId, takeOrderResponse, client)
 
 		assert.Equal(t, 409, resp.StatusCode())
-		assert.Equal(t, resp.Header().Get("HTTP"), "409")
-		// assert.Equal(t, takeOrderResponse.Error, "SUCCESS")
+		assert.Equal(t, "409", resp.Header().Get("HTTP"))
+		assert.Equal(t, `{"error":"order taken, you are too late"}`, string(resp.Body()))
 	})
 }
 
