@@ -7,7 +7,7 @@ services:
       dockerfile: ./Dockerfile
       context: .
     environment:
-      - APP_ENV=integration-test
+      - APP_ENV=Production
       - APP_PORT=8080
       - MYSQL_DBNAME=delivery
       - MYSQL_HOST=mariadb
